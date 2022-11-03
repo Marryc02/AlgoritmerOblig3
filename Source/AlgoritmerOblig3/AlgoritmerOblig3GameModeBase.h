@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+//#include "Engine/World.h"
 #include "AlgoritmerOblig3GameModeBase.generated.h"
+
 
 /**
  * 
