@@ -35,7 +35,7 @@ void UMainUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UMainUserWidget::ClickSpawnNodes() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT SPAWN NODES BUTTON"));
-	//GameModePtr->SpawnSpheres(NodeSlider->GetValue());
+	GameModePtr->SpawnSpheres(NodeSlider->GetValue());
 }
 
 void UMainUserWidget::ClickDeleteNodes() {
