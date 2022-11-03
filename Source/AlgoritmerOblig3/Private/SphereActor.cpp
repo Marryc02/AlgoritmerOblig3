@@ -8,9 +8,10 @@ ASphereActor::ASphereActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMesh"));
-	SetRootComponent(PlayerMesh);
+	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
+	SetRootComponent(SphereMesh);
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	CollisionSphere->SetupAttachment(SphereMesh);
 }
 
 // Called when the game starts or when spawned

@@ -18,10 +18,10 @@ public:
 	// Sets default values for this actor's properties
 	ASphereActor();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
-		class UStaticMeshComponent* PlayerMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SphereMesh")
+		class UStaticMeshComponent* SphereMesh = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionSphere")
 		class USphereComponent* CollisionSphere = nullptr;
 
 protected:
