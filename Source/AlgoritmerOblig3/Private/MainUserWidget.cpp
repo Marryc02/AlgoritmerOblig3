@@ -5,7 +5,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Slider.h"
 #include "Components/Button.h"
-#include "../AlgoritmerOblig3GameModeBase.h"
+
 
 
 bool UMainUserWidget::Initialize() {
@@ -35,6 +35,7 @@ void UMainUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UMainUserWidget::ClickSpawnNodes() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT SPAWN NODES BUTTON"));
+	//GameModePtr->SpawnSpheres(NodeSlider->GetValue());
 }
 
 void UMainUserWidget::ClickDeleteNodes() {

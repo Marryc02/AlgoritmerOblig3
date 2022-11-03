@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "../AlgoritmerOblig3GameModeBase.h"
 #include "MainUserWidget.generated.h"
+
 
 /**
  * 
@@ -19,6 +22,8 @@ public:
 	virtual bool Initialize();
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+	AAlgoritmerOblig3GameModeBase* GameModePtr = Cast<AAlgoritmerOblig3GameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 		class UButton* SpawnNodesButton;
