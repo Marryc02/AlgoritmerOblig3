@@ -22,8 +22,13 @@ protected:
 
 public:
 	void SpawnSpheres(int SpawnAmount);
+	void DeleteSpheres();
+	FVector GetRandomSpawnNumbers();
+	bool bHasNodesSpawned = false;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class ASphereActor> SphereActor_BP;
+
+	TArray<ASphereActor*> AllNodesList;
 };

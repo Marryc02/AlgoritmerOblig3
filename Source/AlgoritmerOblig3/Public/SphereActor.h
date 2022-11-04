@@ -24,6 +24,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionSphere")
 		class USphereComponent* CollisionSphere = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NoSpawnSphere")
+		class USphereComponent* NoSpawnSphere = nullptr;
+
+	FVector SphereMeshScale;
+
+	UFUNCTION()
+		void IncreaseCollisionSphereSize();
+	UFUNCTION()
+		void ConnectNodes();
+
+	TArray<ASphereActor*> ConnectedNodesList;
+
+	UFUNCTION()
+		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+			int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void Teleport();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

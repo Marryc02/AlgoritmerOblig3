@@ -40,6 +40,7 @@ void UMainUserWidget::ClickSpawnNodes() {
 
 void UMainUserWidget::ClickDeleteNodes() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT DELETE NODES BUTTON"));
+	GameModePtr->DeleteSpheres();
 }
 
 void UMainUserWidget::ClickDjikstraButton() {
