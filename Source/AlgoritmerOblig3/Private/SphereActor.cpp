@@ -2,6 +2,7 @@
 
 
 #include "SphereActor.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASphereActor::ASphereActor()
@@ -11,10 +12,9 @@ ASphereActor::ASphereActor()
 	SphereMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereMesh"));
 	SetRootComponent(SphereMesh);
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
-	CollisionSphere->SetupAttachment(SphereMesh);
+	CollisionSphere->SetupAttachment(GetRootComponent());
 
-	NoSpawnSphere = CreateDefaultSubobject<USphereComponent>(TEXT("NoSpawnSphere"));
-	NoSpawnSphere->SetupAttachment(SphereMesh);
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASphereActor::OnOverlap);
 
 }
 
@@ -27,24 +27,36 @@ void ASphereActor::BeginPlay()
 
 	SphereMeshScale = SphereMesh->GetComponentScale();
 
-	NoSpawnSphere->SetWorldScale3D(SphereMeshScale * 4);
 	CollisionSphere->SetWorldScale3D(SphereMeshScale * 10);
-	
-}
-
-void ASphereActor::Teleport() {
-	int x = FMath::RandRange(-500, 500);
-	int y = FMath::RandRange(-500, 500);
-	int z = FMath::RandRange(-500, 500);
-
-	this->SetActorLocation(FVector(x, y, z));
+	Position = GetActorLocation();
 }
 
 void ASphereActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComponent, int32 OtherbodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 
 	if (OtherActor->IsA(ASphereActor::StaticClass())) {
-		Teleport();
+		ASphereActor* CollidedNode = Cast<ASphereActor>(OtherActor);
+		if (CollidedNode->ConnectedNodesList.Num() != 0) {
+			for (int i = 0; i < CollidedNode->ConnectedNodesList.Num(); i++) {
+				if (CollidedNode->ConnectedNodesList[i] == this) {
+					//this->CollisionSphere->DestroyComponent();
+					return;
+				}
+				else {
+					CollidedNode->ConnectedNodesList.Add(this);
+					this->ConnectedNodesList.Add(CollidedNode);
+					//this->CollisionSphere->DestroyComponent();
+					return;
+				}
+			}
+		}
+		else {
+			this->ConnectedNodesList.Add(CollidedNode);
+			CollidedNode->ConnectedNodesList.Add(this);
+			//this->CollisionSphere->DestroyComponent();
+			return;
+		}
+		
 	}
 }
 
@@ -64,9 +76,14 @@ void ASphereActor::IncreaseCollisionSphereSize() {
 		// Currently it might not always work, once the collision is set up
 		// we can properly implement it
 		CollisionSphere->SetWorldScale3D(OldFVector * i);
-		i += 0.1;
+		i += 0.2;
 
-		if (i >= 2.f) {
+		if (ConnectedNodesList.Num() > 0) {
+			UE_LOG(LogTemp, Warning, TEXT("DSAHODHODAHPOIUDAHPOD"));
+			break;
+		}
+
+		if (i >= 10.f) {
 			break;
 		}
 	}

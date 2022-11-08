@@ -26,6 +26,8 @@ public:
 	FVector GetRandomSpawnNumbers();
 	bool bHasNodesSpawned = false;
 
+	void DrawDebugLines();
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class ASphereActor> SphereActor_BP;
