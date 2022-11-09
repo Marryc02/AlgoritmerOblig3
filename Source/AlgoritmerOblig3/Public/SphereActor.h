@@ -24,13 +24,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CollisionSphere")
 		class USphereComponent* CollisionSphere = nullptr;
 
+	bool bIsStartNode = false;
+	bool bIsEndNode = false;
+	bool bIsPathNode = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UMaterial* StartMat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UMaterial* EndMat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UMaterial* PathMat;
+
 
 	FVector SphereMeshScale;
 
 	UFUNCTION()
 		void IncreaseCollisionSphereSize();
-	UFUNCTION()
-		void ConnectNodes();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<ASphereActor*> ConnectedNodesList;
