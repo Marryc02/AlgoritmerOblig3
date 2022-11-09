@@ -27,10 +27,13 @@ public:
 	bool bHasNodesSpawned = false;
 
 	void DrawDebugLines();
+	bool CheckConnection(ASphereActor* RDM);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class ASphereActor> SphereActor_BP;
 
 	TArray<ASphereActor*> AllNodesList;
+	TArray<ASphereActor*> ChunkArray;
+	bool bHasConstructedChunk = false;
 };

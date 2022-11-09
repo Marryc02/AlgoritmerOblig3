@@ -22,7 +22,7 @@ ASphereActor::ASphereActor()
 void ASphereActor::BeginPlay()
 {
 	Super::BeginPlay();
-	float x = FMath::RandRange(0.5, 2);
+	float x = FMath::RandRange(1,3);
 	SphereMesh->SetWorldScale3D(FVector(1, 1, 1) * x);
 
 	SphereMeshScale = SphereMesh->GetComponentScale();
@@ -36,27 +36,29 @@ void ASphereActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 
 	if (OtherActor->IsA(ASphereActor::StaticClass())) {
 		ASphereActor* CollidedNode = Cast<ASphereActor>(OtherActor);
-		if (CollidedNode->ConnectedNodesList.Num() != 0) {
-			for (int i = 0; i < CollidedNode->ConnectedNodesList.Num(); i++) {
-				if (CollidedNode->ConnectedNodesList[i] == this) {
-					//this->CollisionSphere->DestroyComponent();
-					return;
-				}
-				else {
-					CollidedNode->ConnectedNodesList.Add(this);
-					this->ConnectedNodesList.Add(CollidedNode);
-					//this->CollisionSphere->DestroyComponent();
-					return;
+		if (ConnectedNodesList.Find(CollidedNode) == INDEX_NONE) {
+			if (CollidedNode->ConnectedNodesList.Num() != 0) {
+				for (int i = 0; i < CollidedNode->ConnectedNodesList.Num(); i++) {
+					if (CollidedNode->ConnectedNodesList.Find(this) != INDEX_NONE) {
+						this->ConnectedNodesList.Add(CollidedNode);
+						//this->CollisionSphere->DestroyComponent();
+						return;
+					}
+					else {
+						CollidedNode->ConnectedNodesList.Add(this);
+						this->ConnectedNodesList.Add(CollidedNode);
+						//this->CollisionSphere->DestroyComponent();
+						return;
+					}
 				}
 			}
+			else {
+				this->ConnectedNodesList.Add(CollidedNode);
+				CollidedNode->ConnectedNodesList.Add(this);
+				//this->CollisionSphere->DestroyComponent();
+				return;
+			}
 		}
-		else {
-			this->ConnectedNodesList.Add(CollidedNode);
-			CollidedNode->ConnectedNodesList.Add(this);
-			//this->CollisionSphere->DestroyComponent();
-			return;
-		}
-		
 	}
 }
 
@@ -78,14 +80,14 @@ void ASphereActor::IncreaseCollisionSphereSize() {
 		CollisionSphere->SetWorldScale3D(OldFVector * i);
 		i += 0.2;
 
-		if (ConnectedNodesList.Num() > 0) {
+		if (this->ConnectedNodesList.Num() > 0) {
 			UE_LOG(LogTemp, Warning, TEXT("DSAHODHODAHPOIUDAHPOD"));
 			break;
 		}
 
-		if (i >= 10.f) {
+		/*if (i >= 10.f) {
 			break;
-		}
+		}*/
 	}
 }
 
