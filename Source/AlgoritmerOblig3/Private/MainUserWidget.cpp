@@ -45,6 +45,7 @@ void UMainUserWidget::ClickDeleteNodes() {
 
 void UMainUserWidget::ClickDjikstraButton() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT DJIKSTRA BUTTON"));
+	GameModePtr->RunDjikstra();
 }
 
 void UMainUserWidget::ClickAStarButton() {

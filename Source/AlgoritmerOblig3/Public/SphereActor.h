@@ -34,6 +34,8 @@ public:
 		class UMaterial* EndMat;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UMaterial* PathMat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UMaterial* ShortMat;
 
 
 	FVector SphereMeshScale;
@@ -44,8 +46,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<ASphereActor*> ConnectedNodesList;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<ASphereActor*> PathToGetTo;
+
 	UPROPERTY(EditAnywhere)
 		FVector Position;
+	UPROPERTY()
+		int Cost;
+	UPROPERTY()
+		FVector Distance;
+	UPROPERTY()
+		int CalculatedDistance;
+
+	UFUNCTION()
+		int CalculateDistance(FVector dis);
+
 
 	UFUNCTION()
 		void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,

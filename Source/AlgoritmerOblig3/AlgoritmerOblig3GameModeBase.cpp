@@ -169,3 +169,103 @@ bool AAlgoritmerOblig3GameModeBase::CheckConnection(ASphereActor* RDM) {
         return true;
     }
 }
+
+void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
+    // First we begin by checking if there are nodes present to search through
+    if (!bHasNodesSpawned) {
+        return;
+    }
+
+    bHasReachedEnd = false;
+    TArray<ASphereActor*> SearchedNodes = {};
+
+    // Now we set the cost of every node to be the max value, except for the start value
+    for (int i = 0; i < AllNodesList.Num(); i++) {
+        if (!AllNodesList[i]->bIsStartNode) {
+            AllNodesList[i]->Cost = INT_MAX;
+        }
+        else {
+            AllNodesList[i]->Cost = 0;
+        }
+    }
+
+    // Now we add in the start node to the SearchedNodes array, the cost of the node is 0
+    // since it doesn't cost anything to move to the place you're already in
+    for (int i = 0; i < AllNodesList.Num(); i++) {
+        if (AllNodesList[i]->bIsStartNode) {
+            SearchedNodes.Add(AllNodesList[i]);
+            break;
+        }
+    }
+    SearchedNodes[0]->Cost = SearchedNodes[0]->CalculateDistance(SearchedNodes[0]->Position);
+    SearchedNodes[0]->PathToGetTo.Add(SearchedNodes[0]);
+
+    ASphereActor* CompareNode;
+    ASphereActor* ShortestNode;
+    while (SearchedNodes.Num() != AllNodesList.Num() || bHasReachedEnd == false) {
+        // We first run through the searched nodes
+        for (int i = 0; i < SearchedNodes.Num(); i++) {
+            CompareNode = nullptr;
+            ShortestNode = nullptr;
+            // Then we check their connections and add the one with shortest path to SearchedNodes
+            for (int j = 0; j < SearchedNodes[i]->ConnectedNodesList.Num(); j++) {
+                CompareNode = SearchedNodes[i]->ConnectedNodesList[j];
+                CompareNode->Distance = CompareNode->Position - SearchedNodes[i]->Position;
+                CompareNode->Cost = CompareNode->CalculateDistance(CompareNode->Distance);
+
+                // A quick check to see if we ShortestNode is a nullptr
+                // if it is we assume that the CompareNode is the node with shortest path
+                if (ShortestNode == nullptr) {
+                    if (SearchedNodes.Find(CompareNode) == INDEX_NONE) {
+                        ShortestNode = CompareNode;
+                    }
+                }         
+                // Here we check if the CompareNode is smaller than the ShortestNode
+                // If it is we have a new ShortestNode, otherwise we just ignore it for now
+                else if (FMath::Abs(ShortestNode->Cost) > FMath::Abs(CompareNode->Cost) && SearchedNodes.Find(CompareNode) == INDEX_NONE) {
+                    ShortestNode = CompareNode;
+                }
+                
+                // Here we check if the node is actually the end node, if it is we go straight to it
+                if (CompareNode->bIsEndNode) {
+                    ShortestNode = CompareNode;
+                }
+            }
+
+            // Here we fix the pathing for the node and add it to the SearchedNodes array
+            if (ShortestNode != nullptr) {
+                ShortestNode->PathToGetTo = SearchedNodes[i]->PathToGetTo;
+                ShortestNode->PathToGetTo.Add(ShortestNode);
+                SearchedNodes.Add(ShortestNode);
+                // We also end the while loop if we've found the end node
+                if (ShortestNode->bIsEndNode) {
+                    bHasReachedEnd = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Here we change the material of all the nodes
+    // i starts at 1 since the first item in SearchedNodes is always the start node
+    for (int i = 1; i < SearchedNodes.Num(); i++) {
+        if (!SearchedNodes[i]->bIsEndNode) {
+            SearchedNodes[i]->SphereMesh->SetMaterial(0, SearchedNodes[i]->PathMat);
+        }
+    }
+
+    // Now we get a pointer to the end node
+    int x{ 0 };
+    for (x; x < SearchedNodes.Num(); x++) {
+        if (SearchedNodes[x]->bIsEndNode) {
+            break;
+        }
+    }
+
+    // Finally we highlight the path to the end node
+    for (int i = 0; i < SearchedNodes[x]->PathToGetTo.Num(); i++) {
+        if (SearchedNodes[x]->PathToGetTo[i]->bIsStartNode == false && SearchedNodes[x]->PathToGetTo[i]->bIsEndNode == false) {
+            SearchedNodes[x]->PathToGetTo[i]->SphereMesh->SetMaterial(0, SearchedNodes[x]->PathToGetTo[i]->ShortMat);
+        }
+    }
+}

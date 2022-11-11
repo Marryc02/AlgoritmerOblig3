@@ -25,9 +25,11 @@ public:
 	void DeleteSpheres();
 	FVector GetRandomSpawnNumbers();
 	bool bHasNodesSpawned = false;
+	bool bHasReachedEnd = false;
 
 	void DrawDebugLines();
 	bool CheckConnection(ASphereActor* RDM);
+	void RunDjikstra();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawning")

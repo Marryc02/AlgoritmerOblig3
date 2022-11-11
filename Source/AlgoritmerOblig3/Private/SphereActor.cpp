@@ -17,6 +17,7 @@ ASphereActor::ASphereActor()
 	StartMat = CreateDefaultSubobject<UMaterial>(TEXT("StartMat"));
 	EndMat = CreateDefaultSubobject<UMaterial>(TEXT("EndMat"));
 	PathMat = CreateDefaultSubobject<UMaterial>(TEXT("PathMat"));
+	ShortMat = CreateDefaultSubobject<UMaterial>(TEXT("ShortMat"));
 
 
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASphereActor::OnOverlap);
@@ -36,6 +37,10 @@ void ASphereActor::BeginPlay()
 
 	CollisionSphere->SetWorldScale3D(SphereMeshScale * 10);
 	Position = GetActorLocation();
+}
+
+int ASphereActor::CalculateDistance(FVector dis) {
+	return (dis.X + dis.Y + dis.Z);
 }
 
 void ASphereActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
