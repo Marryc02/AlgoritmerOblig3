@@ -52,8 +52,8 @@ void AAlgoritmerOblig3GameModeBase::SpawnSpheres(int SpawnAmount)
             // Choose 1 random node and set it's bIsStartNode value to true
             // Then we choose another random node that is not the first one we chose and change it's
             // bIsEndNode value to true, afterwards we change their materials
-
-            ASphereActor* StartNode = AllNodesList[FMath::RandRange(0, (AllNodesList.Num() - 1))];
+            
+            StartNode = AllNodesList[FMath::RandRange(0, (AllNodesList.Num() - 1))];
             EndNode = AllNodesList[FMath::RandRange(0, (AllNodesList.Num() - 1))];
 
             // Check to ensure that the start is also not the end
@@ -192,12 +192,7 @@ void AAlgoritmerOblig3GameModeBase::RunAlgorithm(bool bAStarIsRunning) {
 
     // Now we add in the start node to the SearchedNodes array, the cost of the node is 0
     // since it doesn't cost anything to move to the place you're already in
-    for (int i = 0; i < AllNodesList.Num(); i++) {
-        if (AllNodesList[i]->bIsStartNode) {
-            SearchedNodes.Add(AllNodesList[i]);
-            break;
-        }
-    }
+    SearchedNodes.Add(StartNode);
     SearchedNodes[0]->Cost = SearchedNodes[0]->CalculateDistance(SearchedNodes[0]->Position);
     SearchedNodes[0]->PathToGetTo.Add(SearchedNodes[0]);
 
@@ -270,6 +265,42 @@ void AAlgoritmerOblig3GameModeBase::ResetPath() {
         }
     }
     SearchedNodes.Empty();
+}
+
+// Also known as Best First Search
+void AAlgoritmerOblig3GameModeBase::InformedSearch() {
+    if (!bHasNodesSpawned) {
+        return;
+    }
+
+    bHasReachedEnd = false;
+
+    TArray<ASphereActor*> PriorityQueue = {};
+    PriorityQueue.Add(StartNode);
+
+    while (PriorityQueue.Num() != 0) {
+        for (int i = 0; PriorityQueue[0]->ConnectedNodesList.Num(); i++) {
+            PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+        }
+
+        
+
+        PriorityQueue.RemoveAt(0);
+
+        ASphereActor* LowestCost = PriorityQueue[0];
+        int LowestIndex{};
+
+        for (int i = 1; PriorityQueue.Num(); i++) {
+            if (PriorityQueue[i]->Cost < LowestCost->Cost) {
+                LowestIndex = i;
+            }
+        }
+        PriorityQueue.Swap(0, LowestIndex);
+
+        if (PriorityQueue[0]->bIsEndNode) {
+            break;
+        }
+    }
 }
 
 

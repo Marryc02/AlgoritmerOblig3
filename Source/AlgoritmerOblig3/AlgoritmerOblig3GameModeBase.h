@@ -31,10 +31,12 @@ public:
 	bool CheckConnection(ASphereActor* RDM);
 	void RunAlgorithm(bool bAStarIsRunning);
 	void ResetPath();
+	void InformedSearch();
 
 	void ChangeMaterials(TArray<ASphereActor*> &mArray);
 
 	ASphereActor* EndNode;
+	ASphereActor* StartNode;
 	TArray<ASphereActor*> SearchedNodes;
 
 private:

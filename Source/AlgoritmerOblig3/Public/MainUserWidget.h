@@ -38,6 +38,8 @@ public:
 		class UButton* RunAStarButton;
 	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 		class UButton* ResetPathButton;
+	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+		class UButton* RunInformedSearch;
 
 	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 		class UTextBlock* NodeAmountText;
@@ -52,4 +54,6 @@ public:
 	void ClickAStarButton();
 	UFUNCTION()
 	void ClickResetPathButton();
+	UFUNCTION()
+	void ClickRunInformedSearchButton();
 };
