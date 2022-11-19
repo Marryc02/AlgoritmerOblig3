@@ -23,6 +23,9 @@ bool UMainUserWidget::Initialize() {
 	if (RunAStarButton) {
 		RunAStarButton->OnClicked.AddDynamic(this, &UMainUserWidget::ClickAStarButton);
 	}
+	if (ResetPathButton) {
+		ResetPathButton->OnClicked.AddDynamic(this, &UMainUserWidget::ClickResetPathButton);
+	}
 
 	return true;
 }
@@ -45,9 +48,15 @@ void UMainUserWidget::ClickDeleteNodes() {
 
 void UMainUserWidget::ClickDjikstraButton() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT DJIKSTRA BUTTON"));
-	GameModePtr->RunDjikstra();
+	GameModePtr->RunAlgorithm(false);
 }
 
 void UMainUserWidget::ClickAStarButton() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT A STAR BUTTON"));
+	GameModePtr->RunAlgorithm(true);
+}
+
+void UMainUserWidget::ClickResetPathButton() {
+	UE_LOG(LogTemp, Warning, TEXT("HIT RESET PATH BUTTON"));
+	GameModePtr->ResetPath();
 }

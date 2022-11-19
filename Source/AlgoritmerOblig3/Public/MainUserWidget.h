@@ -36,6 +36,8 @@ public:
 		class UButton* RunDjikstraButton;
 	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 		class UButton* RunAStarButton;
+	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
+		class UButton* ResetPathButton;
 
 	UPROPERTY(BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 		class UTextBlock* NodeAmountText;
@@ -48,4 +50,6 @@ public:
 	void ClickDjikstraButton();
 	UFUNCTION()
 	void ClickAStarButton();
+	UFUNCTION()
+	void ClickResetPathButton();
 };

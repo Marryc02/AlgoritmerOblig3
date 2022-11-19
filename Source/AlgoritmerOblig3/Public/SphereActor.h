@@ -36,6 +36,8 @@ public:
 		class UMaterial* PathMat;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UMaterial* ShortMat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UMaterial* BasicMat;
 
 
 	FVector SphereMeshScale;

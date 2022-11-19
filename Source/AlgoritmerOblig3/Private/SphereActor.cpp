@@ -18,7 +18,7 @@ ASphereActor::ASphereActor()
 	EndMat = CreateDefaultSubobject<UMaterial>(TEXT("EndMat"));
 	PathMat = CreateDefaultSubobject<UMaterial>(TEXT("PathMat"));
 	ShortMat = CreateDefaultSubobject<UMaterial>(TEXT("ShortMat"));
-
+	BasicMat = CreateDefaultSubobject<UMaterial>(TEXT("BasicMat"));
 
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASphereActor::OnOverlap);
 

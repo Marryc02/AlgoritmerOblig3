@@ -54,7 +54,7 @@ void AAlgoritmerOblig3GameModeBase::SpawnSpheres(int SpawnAmount)
             // bIsEndNode value to true, afterwards we change their materials
 
             ASphereActor* StartNode = AllNodesList[FMath::RandRange(0, (AllNodesList.Num() - 1))];
-            ASphereActor* EndNode = AllNodesList[FMath::RandRange(0, (AllNodesList.Num() - 1))];
+            EndNode = AllNodesList[FMath::RandRange(0, (AllNodesList.Num() - 1))];
 
             // Check to ensure that the start is also not the end
             while (StartNode == EndNode) {
@@ -81,6 +81,7 @@ void AAlgoritmerOblig3GameModeBase::DeleteSpheres() {
         AllNodesList.Empty();
         ChunkArray.Empty();
         bHasNodesSpawned = false;
+        SearchedNodes.Empty();
     }
 }
 
@@ -170,14 +171,14 @@ bool AAlgoritmerOblig3GameModeBase::CheckConnection(ASphereActor* RDM) {
     }
 }
 
-void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
+void AAlgoritmerOblig3GameModeBase::RunAlgorithm(bool bAStarIsRunning) {
     // First we begin by checking if there are nodes present to search through
     if (!bHasNodesSpawned) {
         return;
     }
 
     bHasReachedEnd = false;
-    TArray<ASphereActor*> SearchedNodes = {};
+    
 
     // Now we set the cost of every node to be the max value, except for the start value
     for (int i = 0; i < AllNodesList.Num(); i++) {
@@ -202,6 +203,7 @@ void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
 
     ASphereActor* CompareNode;
     ASphereActor* ShortestNode;
+
     while (SearchedNodes.Num() != AllNodesList.Num() || bHasReachedEnd == false) {
         // We first run through the searched nodes
         for (int i = 0; i < SearchedNodes.Num(); i++) {
@@ -209,15 +211,14 @@ void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
             ShortestNode = nullptr;
             // Then we check their connections and add the one with shortest path to SearchedNodes
             for (int j = 0; j < SearchedNodes[i]->ConnectedNodesList.Num(); j++) {
-                /*
+                
                 CompareNode = SearchedNodes[i]->ConnectedNodesList[j];
-                CompareNode->Distance = CompareNode->Position - SearchedNodes[i]->Position;
-                CompareNode->Cost = CompareNode->CalculateDistance(CompareNode->Distance);
-                */
-                CompareNode = SearchedNodes[i]->ConnectedNodesList[j];
+                CompareNode->Distance = EndNode->Position - CompareNode->Position;
 
-
-
+                if (bAStarIsRunning) {
+                    CompareNode->Cost += CompareNode->CalculateDistance(CompareNode->Distance);
+                }
+                
                 // A quick check to see if we ShortestNode is a nullptr
                 // if it is we assume that the CompareNode is the node with shortest path
                 if (ShortestNode == nullptr) {
@@ -233,7 +234,6 @@ void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
                         ShortestNode = CompareNode;
                     }
                 }
-                
 
                 /*else if (FMath::Abs(ShortestNode->Cost) > FMath::Abs(CompareNode->Cost) && SearchedNodes.Find(CompareNode) == INDEX_NONE) {
                     ShortestNode = CompareNode;
@@ -260,26 +260,40 @@ void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
         }
     }
 
+    ChangeMaterials(SearchedNodes);
+}
+
+void AAlgoritmerOblig3GameModeBase::ResetPath() {
+    for (int i = 0; i < SearchedNodes.Num(); i++) {
+        if (SearchedNodes[i]->bIsStartNode == false && SearchedNodes[i]->bIsEndNode == false) {
+            SearchedNodes[i]->SphereMesh->SetMaterial(0, SearchedNodes[i]->BasicMat);
+        }
+    }
+    SearchedNodes.Empty();
+}
+
+
+void AAlgoritmerOblig3GameModeBase::ChangeMaterials(TArray<ASphereActor*> &mArray) {
     // Here we change the material of all the nodes
     // i starts at 1 since the first item in SearchedNodes is always the start node
-    for (int i = 1; i < SearchedNodes.Num(); i++) {
-        if (!SearchedNodes[i]->bIsEndNode) {
-            SearchedNodes[i]->SphereMesh->SetMaterial(0, SearchedNodes[i]->PathMat);
+    for (int i = 1; i < mArray.Num(); i++) {
+        if (!mArray[i]->bIsEndNode) {
+            mArray[i]->SphereMesh->SetMaterial(0, mArray[i]->PathMat);
         }
     }
 
     // Now we get a pointer to the end node
     int x{ 0 };
-    for (x; x < SearchedNodes.Num(); x++) {
-        if (SearchedNodes[x]->bIsEndNode) {
+    for (x; x < mArray.Num(); x++) {
+        if (mArray[x]->bIsEndNode) {
             break;
         }
     }
 
     // Finally we highlight the path to the end node
-    for (int i = 0; i < SearchedNodes[x]->PathToGetTo.Num(); i++) {
-        if (SearchedNodes[x]->PathToGetTo[i]->bIsStartNode == false && SearchedNodes[x]->PathToGetTo[i]->bIsEndNode == false) {
-            SearchedNodes[x]->PathToGetTo[i]->SphereMesh->SetMaterial(0, SearchedNodes[x]->PathToGetTo[i]->ShortMat);
+    for (int i = 0; i < mArray[x]->PathToGetTo.Num(); i++) {
+        if (mArray[x]->PathToGetTo[i]->bIsStartNode == false && mArray[x]->PathToGetTo[i]->bIsEndNode == false) {
+            mArray[x]->PathToGetTo[i]->SphereMesh->SetMaterial(0, mArray[x]->PathToGetTo[i]->ShortMat);
         }
     }
 }

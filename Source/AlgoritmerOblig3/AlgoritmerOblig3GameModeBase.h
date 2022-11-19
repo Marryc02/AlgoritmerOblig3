@@ -29,7 +29,13 @@ public:
 
 	void DrawDebugLines();
 	bool CheckConnection(ASphereActor* RDM);
-	void RunDjikstra();
+	void RunAlgorithm(bool bAStarIsRunning);
+	void ResetPath();
+
+	void ChangeMaterials(TArray<ASphereActor*> &mArray);
+
+	ASphereActor* EndNode;
+	TArray<ASphereActor*> SearchedNodes;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
