@@ -54,6 +54,8 @@ public:
 	UPROPERTY()
 		int Cost;
 	UPROPERTY()
+		int ScaleCost;
+	UPROPERTY()
 		FVector Distance;
 	UPROPERTY()
 		int CalculatedDistance;

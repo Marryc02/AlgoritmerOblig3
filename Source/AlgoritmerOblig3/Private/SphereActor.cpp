@@ -37,6 +37,23 @@ void ASphereActor::BeginPlay()
 
 	CollisionSphere->SetWorldScale3D(SphereMeshScale * 10);
 	Position = GetActorLocation();
+
+	ScaleCost = SphereMeshScale.X + SphereMeshScale.Y + SphereMeshScale.Z;
+
+	switch (ScaleCost) {
+	case 3:
+		Cost = 100;
+		break;
+	case 6:
+		Cost = 200;
+		break;
+	case 9:
+		Cost = 300;
+		break;
+	default:
+		Cost = 100;
+		break;
+	}
 }
 
 int ASphereActor::CalculateDistance(FVector dis) {

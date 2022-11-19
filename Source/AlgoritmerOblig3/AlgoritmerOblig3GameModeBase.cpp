@@ -209,9 +209,14 @@ void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
             ShortestNode = nullptr;
             // Then we check their connections and add the one with shortest path to SearchedNodes
             for (int j = 0; j < SearchedNodes[i]->ConnectedNodesList.Num(); j++) {
+                /*
                 CompareNode = SearchedNodes[i]->ConnectedNodesList[j];
                 CompareNode->Distance = CompareNode->Position - SearchedNodes[i]->Position;
                 CompareNode->Cost = CompareNode->CalculateDistance(CompareNode->Distance);
+                */
+                CompareNode = SearchedNodes[i]->ConnectedNodesList[j];
+
+
 
                 // A quick check to see if we ShortestNode is a nullptr
                 // if it is we assume that the CompareNode is the node with shortest path
@@ -222,10 +227,19 @@ void AAlgoritmerOblig3GameModeBase::RunDjikstra() {
                 }         
                 // Here we check if the CompareNode is smaller than the ShortestNode
                 // If it is we have a new ShortestNode, otherwise we just ignore it for now
-                else if (FMath::Abs(ShortestNode->Cost) > FMath::Abs(CompareNode->Cost) && SearchedNodes.Find(CompareNode) == INDEX_NONE) {
-                    ShortestNode = CompareNode;
+
+                if (ShortestNode != nullptr && CompareNode != nullptr) {
+                    if (ShortestNode->Cost > CompareNode->Cost && SearchedNodes.Find(CompareNode) == INDEX_NONE) {
+                        ShortestNode = CompareNode;
+                    }
                 }
                 
+
+                /*else if (FMath::Abs(ShortestNode->Cost) > FMath::Abs(CompareNode->Cost) && SearchedNodes.Find(CompareNode) == INDEX_NONE) {
+                    ShortestNode = CompareNode;
+                }
+                */
+
                 // Here we check if the node is actually the end node, if it is we go straight to it
                 if (CompareNode->bIsEndNode) {
                     ShortestNode = CompareNode;
