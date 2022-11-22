@@ -133,12 +133,8 @@ bool AAlgoritmerOblig3GameModeBase::CheckConnection(ASphereActor* RDM) {
                 }
             }
         }
-        UE_LOG(LogTemp, Warning, TEXT("FIRST WHILE"));
         bHasConstructedChunk = true;
     }
-
-    UE_LOG(LogTemp, Warning, TEXT("AllNodesNum value is: %d"), AllNodesList.Num());
-    UE_LOG(LogTemp, Warning, TEXT("ChunkArrayNum value is: %d"), ChunkArray.Num());
 
     // Step 3
     if (AllNodesList.Num() != ChunkArray.Num()) {
@@ -290,15 +286,22 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
     PriorityQueue[0]->PathToGetTo.Add(PriorityQueue[0]);
     ASphereActor* ConnectedNode;
 
+
     while (PriorityQueue.Num() != 0 || bHasReachedEnd == false) {
         for (int i = 0; i < PriorityQueue[0]->ConnectedNodesList.Num(); i++) {
 
+            // Here we calculate the distance from each node to the endnode
             ConnectedNode = PriorityQueue[0]->ConnectedNodesList[i];
             ConnectedNode->CalculatedDistance = DistanceToEnd(ConnectedNode);
             ConnectedNode->Cost += abs(ConnectedNode->CalculatedDistance / 10);
 
+            // We need to check if we've visited nodes before, this will ensure we don't get duplicates
             if (VisitedNodes.Num() != 0) {
+                // If we have visited nodes before, we need to check the list if they sphere we're inspecting
+                // has already been inspected, this eliminates duplicates
                 for (int j = 0; j < VisitedNodes.Num(); j++) {
+
+                    // If the sphere is already in the list, we skip it, otherwise we add it to the priorityqueue
                     if (VisitedNodes.Find(PriorityQueue[0]->ConnectedNodesList[i]) == INDEX_NONE) {
                         if (PriorityQueue.Find(ConnectedNode) == INDEX_NONE) {
                             PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
@@ -309,17 +312,23 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
                 }
             }
             else {
+                // This else is basically reserved for the first node to be added
                 if (PriorityQueue.Find(ConnectedNode) == INDEX_NONE) {
-                    PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
-                    PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
-                    PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                    PriorityQueue.Add(ConnectedNode);
+                    ConnectedNode->PathToGetTo = PriorityQueue[0]->PathToGetTo;
+                    ConnectedNode->PathToGetTo.Add(ConnectedNode);
                 }
             }            
         }
-        UE_LOG(LogTemp, Warning, TEXT("PriorityQueue before: %d"), PriorityQueue.Num());
+
+        // Now that we've added in the connected nodes in the priorityqueue, we add the current ConnectedNode to 
+        // the VisitedNodes array, so we don't need to check it again
         VisitedNodes.Add(PriorityQueue[0]);
+        // Then we remove the first element
         PriorityQueue.RemoveAt(0, 1, true);
-        UE_LOG(LogTemp, Warning, TEXT("PriorityQueue after: %d"), PriorityQueue.Num());
+
+        // Here we run through the priorityqueue to see if any of them are the end node
+        // If it is then we put it to the front of the list
         for (int i = 0; i < PriorityQueue.Num(); i++) {
             if (PriorityQueue[i]->bIsEndNode) {
                 PriorityQueue.Swap(0, i);
@@ -329,8 +338,8 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
         }
 
         // Selection sort to sort the spheres based on cost
-        // Selection sort is cucked - causes infinite loop
         if (PriorityQueue.Num() != 0) {
+            // There is no need to sort the list if we already have the EndNode at the front
             if (!bHasFoundEnd) {
                 for (int i = 0; i < PriorityQueue.Num() - 1; i++) {
                     int Smallest = i;
@@ -347,6 +356,7 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
                 }
             }
             
+            // If the EndNode is at the front of the list, we stop the algorithm and change the colors
             if (PriorityQueue[0]->bIsEndNode) {
                 bHasReachedEnd = true;
                 ChangeMaterials(VisitedNodes);
@@ -355,14 +365,13 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
             
         }
         else {
+            // This else section is typically not reached, unless the last node in the priorityqueue is the EndNode
             bHasReachedEnd = true;
             ChangeMaterials(VisitedNodes);
             return;
         }
 
     }
-
-    
 }
 
 int AAlgoritmerOblig3GameModeBase::DistanceToEnd(ASphereActor* node) {
