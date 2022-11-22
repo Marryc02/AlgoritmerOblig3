@@ -213,7 +213,7 @@ void AAlgoritmerOblig3GameModeBase::RunAlgorithm(bool bAStarIsRunning) {
                 CompareNode->Distance = EndNode->Position - CompareNode->Position;
 
                 if (bAStarIsRunning) {
-                    CompareNode->Cost += CompareNode->CalculateDistance(CompareNode->Distance);
+                    CompareNode->Cost += DistanceToEnd(CompareNode);
                 }
                 
                 // A quick check to see if we ShortestNode is a nullptr
@@ -282,11 +282,6 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
         return;
     }
 
-    if (StartNode == nullptr) {
-        UE_LOG(LogTemp, Warning, TEXT("StartNode is nullptr"));
-        return;
-    }
-
     bHasReachedEnd = false;
     bool bHasFoundEnd = false;
     
@@ -305,21 +300,26 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
             if (VisitedNodes.Num() != 0) {
                 for (int j = 0; j < VisitedNodes.Num(); j++) {
                     if (VisitedNodes.Find(PriorityQueue[0]->ConnectedNodesList[i]) == INDEX_NONE) {
-                        PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
-                        PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
-                        PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                        if (PriorityQueue.Find(ConnectedNode) == INDEX_NONE) {
+                            PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                            PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
+                            PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                        }
                     }
                 }
             }
             else {
-                PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
-                PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
-                PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                if (PriorityQueue.Find(ConnectedNode) == INDEX_NONE) {
+                    PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                    PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
+                    PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                }
             }            
         }
+        UE_LOG(LogTemp, Warning, TEXT("PriorityQueue before: %d"), PriorityQueue.Num());
         VisitedNodes.Add(PriorityQueue[0]);
         PriorityQueue.RemoveAt(0, 1, true);
-
+        UE_LOG(LogTemp, Warning, TEXT("PriorityQueue after: %d"), PriorityQueue.Num());
         for (int i = 0; i < PriorityQueue.Num(); i++) {
             if (PriorityQueue[i]->bIsEndNode) {
                 PriorityQueue.Swap(0, i);
