@@ -27,7 +27,7 @@ bool UMainUserWidget::Initialize() {
 		ResetPathButton->OnClicked.AddDynamic(this, &UMainUserWidget::ClickResetPathButton);
 	}
 	if (RunInformedSearch) {
-		RunInformedSearch->OnClicked.AddDynamic(this, &UMainUserWidget::ClickResetPathButton);
+		RunInformedSearch->OnClicked.AddDynamic(this, &UMainUserWidget::ClickRunInformedSearchButton);
 	}
 
 	return true;
@@ -66,5 +66,5 @@ void UMainUserWidget::ClickResetPathButton() {
 
 void UMainUserWidget::ClickRunInformedSearchButton() {
 	UE_LOG(LogTemp, Warning, TEXT("HIT RUN IFORMED BUTTON"));
-
+	GameModePtr->InformedSearch();
 }

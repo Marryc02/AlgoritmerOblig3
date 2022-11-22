@@ -53,13 +53,13 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		FVector Position;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int Cost;
 	UPROPERTY()
 		int ScaleCost;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector Distance;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int CalculatedDistance;
 
 	UFUNCTION()

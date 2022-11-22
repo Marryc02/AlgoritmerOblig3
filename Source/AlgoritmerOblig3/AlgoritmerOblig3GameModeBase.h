@@ -32,12 +32,15 @@ public:
 	void RunAlgorithm(bool bAStarIsRunning);
 	void ResetPath();
 	void InformedSearch();
+	int DistanceToEnd(ASphereActor* node);
 
 	void ChangeMaterials(TArray<ASphereActor*> &mArray);
 
 	ASphereActor* EndNode;
 	ASphereActor* StartNode;
 	TArray<ASphereActor*> SearchedNodes;
+	TArray<ASphereActor*> PriorityQueue;
+	TArray<ASphereActor*> VisitedNodes;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Spawning")

@@ -82,6 +82,8 @@ void AAlgoritmerOblig3GameModeBase::DeleteSpheres() {
         ChunkArray.Empty();
         bHasNodesSpawned = false;
         SearchedNodes.Empty();
+        VisitedNodes.Empty();
+        PriorityQueue.Empty();
     }
 }
 
@@ -264,7 +266,14 @@ void AAlgoritmerOblig3GameModeBase::ResetPath() {
             SearchedNodes[i]->SphereMesh->SetMaterial(0, SearchedNodes[i]->BasicMat);
         }
     }
+    for (int i = 0; i < VisitedNodes.Num(); i++) {
+        if (VisitedNodes[i]->bIsStartNode == false && VisitedNodes[i]->bIsEndNode == false) {
+            VisitedNodes[i]->SphereMesh->SetMaterial(0, VisitedNodes[i]->BasicMat);
+        }
+    }
     SearchedNodes.Empty();
+    VisitedNodes.Empty();
+    PriorityQueue.Empty();
 }
 
 // Also known as Best First Search
@@ -273,34 +282,96 @@ void AAlgoritmerOblig3GameModeBase::InformedSearch() {
         return;
     }
 
-    bHasReachedEnd = false;
+    if (StartNode == nullptr) {
+        UE_LOG(LogTemp, Warning, TEXT("StartNode is nullptr"));
+        return;
+    }
 
-    TArray<ASphereActor*> PriorityQueue = {};
+    bHasReachedEnd = false;
+    bool bHasFoundEnd = false;
+    
     PriorityQueue.Add(StartNode);
 
-    while (PriorityQueue.Num() != 0) {
-        for (int i = 0; PriorityQueue[0]->ConnectedNodesList.Num(); i++) {
-            PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+    PriorityQueue[0]->PathToGetTo.Add(PriorityQueue[0]);
+    ASphereActor* ConnectedNode;
+
+    while (PriorityQueue.Num() != 0 || bHasReachedEnd == false) {
+        for (int i = 0; i < PriorityQueue[0]->ConnectedNodesList.Num(); i++) {
+
+            ConnectedNode = PriorityQueue[0]->ConnectedNodesList[i];
+            ConnectedNode->CalculatedDistance = DistanceToEnd(ConnectedNode);
+            ConnectedNode->Cost += abs(ConnectedNode->CalculatedDistance / 10);
+
+            if (VisitedNodes.Num() != 0) {
+                for (int j = 0; j < VisitedNodes.Num(); j++) {
+                    if (VisitedNodes.Find(PriorityQueue[0]->ConnectedNodesList[i]) == INDEX_NONE) {
+                        PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                        PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
+                        PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                    }
+                }
+            }
+            else {
+                PriorityQueue.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+                PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo = PriorityQueue[0]->PathToGetTo;
+                PriorityQueue[0]->ConnectedNodesList[i]->PathToGetTo.Add(PriorityQueue[0]->ConnectedNodesList[i]);
+            }            
         }
+        VisitedNodes.Add(PriorityQueue[0]);
+        PriorityQueue.RemoveAt(0, 1, true);
 
-        
-
-        PriorityQueue.RemoveAt(0);
-
-        ASphereActor* LowestCost = PriorityQueue[0];
-        int LowestIndex{};
-
-        for (int i = 1; PriorityQueue.Num(); i++) {
-            if (PriorityQueue[i]->Cost < LowestCost->Cost) {
-                LowestIndex = i;
+        for (int i = 0; i < PriorityQueue.Num(); i++) {
+            if (PriorityQueue[i]->bIsEndNode) {
+                PriorityQueue.Swap(0, i);
+                bHasFoundEnd = true;
+                break;
             }
         }
-        PriorityQueue.Swap(0, LowestIndex);
 
-        if (PriorityQueue[0]->bIsEndNode) {
-            break;
+        // Selection sort to sort the spheres based on cost
+        // Selection sort is cucked - causes infinite loop
+        if (PriorityQueue.Num() != 0) {
+            if (!bHasFoundEnd) {
+                for (int i = 0; i < PriorityQueue.Num() - 1; i++) {
+                    int Smallest = i;
+
+                    for (int j = i + 1; j < PriorityQueue.Num(); j++) {
+                        if (PriorityQueue[j]->Cost < PriorityQueue[Smallest]->Cost) {
+                            Smallest = j;
+                        }
+                    }
+
+                    if (Smallest != i) {
+                        PriorityQueue.SwapMemory(i, Smallest);
+                    }
+                }
+            }
+            
+            if (PriorityQueue[0]->bIsEndNode) {
+                bHasReachedEnd = true;
+                ChangeMaterials(VisitedNodes);
+                return;
+            }
+            
         }
+        else {
+            bHasReachedEnd = true;
+            ChangeMaterials(VisitedNodes);
+            return;
+        }
+
     }
+
+    
+}
+
+int AAlgoritmerOblig3GameModeBase::DistanceToEnd(ASphereActor* node) {
+    int x{};
+
+    x += EndNode->Position.X - node->Position.X;
+    x += EndNode->Position.Y - node->Position.Y;
+    x += EndNode->Position.Z - node->Position.Z;
+    return x;
 }
 
 
@@ -313,18 +384,10 @@ void AAlgoritmerOblig3GameModeBase::ChangeMaterials(TArray<ASphereActor*> &mArra
         }
     }
 
-    // Now we get a pointer to the end node
-    int x{ 0 };
-    for (x; x < mArray.Num(); x++) {
-        if (mArray[x]->bIsEndNode) {
-            break;
-        }
-    }
-
     // Finally we highlight the path to the end node
-    for (int i = 0; i < mArray[x]->PathToGetTo.Num(); i++) {
-        if (mArray[x]->PathToGetTo[i]->bIsStartNode == false && mArray[x]->PathToGetTo[i]->bIsEndNode == false) {
-            mArray[x]->PathToGetTo[i]->SphereMesh->SetMaterial(0, mArray[x]->PathToGetTo[i]->ShortMat);
+    for (int i = 0; i < EndNode->PathToGetTo.Num(); i++) {
+        if (EndNode->PathToGetTo[i]->bIsStartNode == false && EndNode->PathToGetTo[i]->bIsEndNode == false) {
+            EndNode->PathToGetTo[i]->SphereMesh->SetMaterial(0, EndNode->ShortMat);
         }
     }
 }

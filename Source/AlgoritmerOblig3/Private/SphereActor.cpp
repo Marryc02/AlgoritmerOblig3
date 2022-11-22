@@ -42,16 +42,16 @@ void ASphereActor::BeginPlay()
 
 	switch (ScaleCost) {
 	case 3:
-		Cost = 100;
+		Cost = 50;
 		break;
 	case 6:
-		Cost = 200;
+		Cost = 100;
 		break;
 	case 9:
-		Cost = 300;
+		Cost = 150;
 		break;
 	default:
-		Cost = 100;
+		Cost = 50;
 		break;
 	}
 }
